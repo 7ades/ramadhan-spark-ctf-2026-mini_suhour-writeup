@@ -46,7 +46,7 @@ As we can see if i exceed a certain limit of input bytes the program tell us to 
 ## step 3 - Debugging the binary 
 
 Now we are going to debug our binary using gdb -q main (-q for less output in the intro) 
-```bash
+```gdb
 ┌──(kali㉿kali)-[~/Desktop/ramadhan-ctf/2-strlen/mini_sohour_handout]
 └─$ gdb -q main 
 GEF for linux ready, type `gef' to start, `gef config' to configure
@@ -80,7 +80,7 @@ Non-debugging symbols:
 gef➤  
 ```
 As we can see we have the main function , vuln and a win function . let's disassemble our main function using disass main
-```bash
+```gdb
 gef➤  disass main
 Dump of assembler code for function main:
    0x000000000040121c <+0>:     push   rbp
@@ -112,7 +112,7 @@ Dump of assembler code for function main:
 End of assembler dump.
 ```
 It's calling vuln , let's see what it got 
-```bash
+```gdb
 gef➤  disass vuln
 Dump of assembler code for function vuln:
    0x000000000040128c <+0>:     push   rbp
@@ -143,7 +143,7 @@ Dump of assembler code for function vuln:
 End of assembler dump.
 ```
 in this part of the vuln function
-```bash
+```gdb
    0x00000000004012a8 <+28>:    lea    rax,[rbp-0xa]
    0x00000000004012ac <+32>:    mov    edx,0xc8
    0x00000000004012b1 <+37>:    mov    rsi,rax
@@ -154,7 +154,7 @@ As we can see the vuln function reads 0xa bytes (10 bytes) from the user and sto
 
 
 But if we look closer in this part of the vuln function 
-```bash
+```gdb
    0x00000000004012be <+50>:    lea    rax,[rbp-0xa]
    0x00000000004012c2 <+54>:    mov    rdi,rax
    0x00000000004012c5 <+57>:    call   0x401050 <strlen@plt>
@@ -174,7 +174,7 @@ We see that is the program is computing the size of out input buffer with strlen
 Now, where is the vulnerable part in this . It's in the strlen function . See Strlen calculate the number of characters and stops when it reach a null byte '\0' . So the catch is to input 9 bytes and then we send a null byte to bypass the size check and then we can ovrwrite other things in the stack to reach the rip(instruction pointer) which points to the next instruction to be executed . 
 
 Now let's disassemble the win function 
-```bash
+```gdb
 gef➤  disass win
 Dump of assembler code for function win:
    0x00000000004011f7 <+0>:     push   rbp
@@ -199,7 +199,7 @@ As we can see it calls system and passes "/bin/sh" to it , so the win function s
 It's clear now we need to send 9 bytes + null byte + 8 bytes(to overwrite the rbp) + win function address
 
 We are going to need ret gadgets to align the stack after overwriting the rbp , we use ropper --f main to list the gadgets in our binary .
-```bash
+```gdb
 ┌──(kali㉿kali)-[~/Desktop/ramadhan-ctf/2-strlen/mini_sohour_handout]
 └─$ ropper --f  main             
 [INFO] Load gadgets for section: LOAD
