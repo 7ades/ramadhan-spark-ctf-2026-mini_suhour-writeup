@@ -142,8 +142,18 @@ Dump of assembler code for function vuln:
    0x00000000004012eb <+95>:    ret
 End of assembler dump.
 ```
-As we can see the vuln function reads 0xa bytes (10 bytes) from the user and stores it in a 0xc8 space (200 bytes) which can cause a buffer overflow , but it we look closer
-in this part of the vuln function 
+in this part of the vuln function
+```bash
+   0x00000000004012a8 <+28>:    lea    rax,[rbp-0xa]
+   0x00000000004012ac <+32>:    mov    edx,0xc8
+   0x00000000004012b1 <+37>:    mov    rsi,rax
+   0x00000000004012b4 <+40>:    mov    edi,0x0
+   0x00000000004012b9 <+45>:    call   0x401080 <read@plt>
+```
+As we can see the vuln function reads 0xa bytes (10 bytes) from the user and stores it in a 0xc8 space (200 bytes) which can cause a buffer overflow .
+
+
+But if we look closer in this part of the vuln function 
 ```bash
    0x00000000004012be <+50>:    lea    rax,[rbp-0xa]
    0x00000000004012c2 <+54>:    mov    rdi,rax
