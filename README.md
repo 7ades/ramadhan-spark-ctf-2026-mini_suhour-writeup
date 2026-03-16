@@ -169,7 +169,7 @@ But if we look closer in this part of the vuln function
    0x00000000004012ea <+94>:    leave
    0x00000000004012eb <+95>:    ret
 ```
-We see that is the program is computing the size of out input buffer with strlen and then it compare it with 0xa (10) , and the it uses jbe (jump if below or equal) , if the size of the buffer is below or equal 10 the program jumps to vuln+93 and exit noramlly , and it it is greater than 10 it continue and before calling exit in vuln+88
+We see that the program is computing the size of out input buffer with strlen and then it compares it with 0xa (10) , and the it uses jbe (jump if below or equal) , if the size of the buffer is below or equal 10 the program jumps to vuln+93 and exit noramlly , and it it is greater than 10 it continue before to an exit call in vuln+88
 
 Now, where is the vulnerable part in this . It's in the strlen function . See Strlen calculate the number of characters and stops when it reach a null byte '\0' . So the catch is to input 9 bytes and then we send a null byte to bypass the size check and then we can ovrwrite other things in the stack to reach the rip(instruction pointer) which points to the next instruction to be executed . 
 
